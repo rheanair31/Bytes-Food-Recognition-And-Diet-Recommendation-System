@@ -1,34 +1,26 @@
 {
-    "age": 21,
+    "age": 19,
     "sex": "male",
     "weight_kg": 84.0,
-    "height_cm": 164.0,
+    "height_cm": 160.0,
     "activity_level": "light",
     "goal": "lose_weight",
     "diet_type": "Vegetarian",
     "allergies": [
-        "potato"
+        "potato",
+        "onion"
     ],
     "cuisines": {
         "breakfast": [
-            "American",
-            "French",
-            "Japanese"
+            "Fruit"
         ],
         "lunch": [
-            "Italian",
-            "Mexican",
             "Indian"
         ],
         "dinner": [
-            "Chinese",
-            "Thai",
-            "Greek"
+            "Italian",
+            "French"
         ],
-        "snack": [
-            "Fruit",
-            "Spanish",
-            "Vietnamese"
-        ]
+        "snack": []
     }
 }

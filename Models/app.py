@@ -44,6 +44,7 @@ def index():
     logger.info("Rendering home page")
     return render_template('index.html')
 
+
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
     """User profile form and submission handler with detailed error logging"""
@@ -173,6 +174,26 @@ def profile():
             if recommender:
                 try:
                     daily_plan = recommender.recommend_daily_meals(user_profile)
+                    
+                    # Add seasonal information to the meal plan
+                    current_season = recommender.determine_current_season()
+                    daily_plan['current_season'] = current_season
+                    
+                    # Get seasonal recommendations
+                    seasonal_recommendations = {}
+                    meal_types = ['breakfast', 'lunch', 'dinner', 'snack']
+                    
+                    for meal_type in meal_types:
+                        seasonal_items = recommender.get_seasonal_recommendations(
+                            diet_type=user_profile.get('diet_type', ''),
+                            meal_type=meal_type,
+                            cuisines=user_profile.get('cuisines', {}).get(meal_type)
+                        )
+                        seasonal_recommendations[meal_type] = seasonal_items
+                    
+                    # Add seasonal recommendations to the meal plan
+                    daily_plan['seasonal_recommendations'] = seasonal_recommendations
+                    
                     logger.info("Meal plan generated successfully.")
                     
                     # Return JSON response for AJAX requests
@@ -195,6 +216,8 @@ def profile():
     logger.info("Rendering profile form page.")
     return render_template('profile.html')
 
+
+
 @app.route('/meal-plan')
 def meal_plan():
     """Generate and display meal plan based on user profile"""
@@ -206,7 +229,27 @@ def meal_plan():
         # Generate meal plan
         if recommender:
             daily_plan = recommender.recommend_daily_meals(user_profile)
-            logger.info(f"Generated meal plan: {daily_plan}")
+            
+            # Add seasonal information to the meal plan
+            current_season = recommender.determine_current_season()
+            daily_plan['current_season'] = current_season
+            
+            # Get seasonal recommendations
+            seasonal_recommendations = {}
+            meal_types = ['breakfast', 'lunch', 'dinner', 'snack']
+            
+            for meal_type in meal_types:
+                seasonal_items = recommender.get_seasonal_recommendations(
+                    diet_type=user_profile.get('diet_type', ''),
+                    meal_type=meal_type,
+                    cuisines=user_profile.get('cuisines', {}).get(meal_type)
+                )
+                seasonal_recommendations[meal_type] = seasonal_items
+            
+            # Add seasonal recommendations to the meal plan
+            daily_plan['seasonal_recommendations'] = seasonal_recommendations
+            
+            logger.info(f"Generated meal plan with seasonal data: {daily_plan}")
             
             # Save the plan to a file for download
             filename = recommender.save_meal_plan(daily_plan)
@@ -224,12 +267,12 @@ def meal_plan():
     except Exception as e:
         logger.error(f"Error generating meal plan: {str(e)}")
         return jsonify({"error": f"Error generating meal plan: {str(e)}"}), 500
-
+    
+    
 @app.route('/seasonal-recommendations')
 def seasonal_recommendations():
-    """Show seasonal food recommendations"""
     try:
-        # Load user profile from file (or you could use a database or session)
+        # Load user profile from file
         with open('user_profile.json', 'r') as f:
             user_profile = json.load(f)
         
@@ -247,6 +290,10 @@ def seasonal_recommendations():
             )
             seasonal_recommendations[meal_type] = seasonal_items['foods'][:5]
         
+        logger.debug(f"Current season: {current_season}")
+        logger.debug(f"Seasonal recommendations: {seasonal_recommendations}")
+
+
         return render_template(
             'seasonal.html',
             seasonal_recommendations=seasonal_recommendations,

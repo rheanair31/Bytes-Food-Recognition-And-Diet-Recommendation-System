@@ -17,6 +17,12 @@ const MealPlanResults = ({ userProfile, mealPlan }) => {
     }
   }, [mealPlan, userProfile, navigate]);
 
+  useEffect(() => {
+    console.log("Meal plan received:", mealPlan);
+    console.log("Current season:", mealPlan?.current_season);
+    console.log("Seasonal recommendations:", mealPlan?.seasonal_recommendations);
+  }, [mealPlan]);
+
   // If data is missing, render nothing while the redirect happens
   if (!mealPlan || !userProfile) {
     return null;
